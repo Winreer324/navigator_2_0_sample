@@ -18,7 +18,7 @@ class BookRouteInformationParser extends RouteInformationParser<BookRoutePath> {
   Future<BookRoutePath> parseRouteInformation(RouteInformation routeInformation) async {
     final uri = Uri.parse(routeInformation.location ?? '');
 
-    log('uri.pathSegments ${uri.pathSegments}', name: 'parseRouteInformation');
+    // log('uri.pathSegments ${uri.pathSegments}', name: 'parseRouteInformation');
     // Handle '/'
     if (uri.pathSegments.isEmpty) {
       return BookRoutePath.home();
@@ -70,7 +70,7 @@ class BookRouteInformationParser extends RouteInformationParser<BookRoutePath> {
     /// colors page
 
     if (path.isColorsPage) {
-      log('set colors path', name: 'colors');
+      // log('set colors path', name: 'colors');
       return RouteInformation(location: '/$colorsPath');
     }
 
@@ -79,12 +79,12 @@ class BookRouteInformationParser extends RouteInformationParser<BookRoutePath> {
     /// details page
 
     if (path.isDetailsIdPage) {
-      log('set home details by id path', name: 'details');
+      // log('set home details by id path', name: 'details');
       return RouteInformation(location: '/$detailsPath/${path.detailsId}');
     }
 
     if (path.isDetailsPage) {
-      log('set home path', name: 'details');
+      // log('set home path', name: 'details');
       return RouteInformation(location: '/$detailsPath');
     }
 
@@ -93,18 +93,17 @@ class BookRouteInformationParser extends RouteInformationParser<BookRoutePath> {
     /// book page
 
     if (path.isBookDetailsIdPage) {
-      log('set book by id path', name: 'book');
+      // log('set book by id path', name: 'book');
       return RouteInformation(location: '/$bookPath/${path.bookId}');
     }
 
     /// book page
 
     if (path.isHomeBookPage) {
-      log('set home path', name: 'home');
+      // log('set home path', name: 'home');
       return const RouteInformation(location: '/');
     }
 
-    log('set empty path', name: 'restoreRouteInformation');
 
     return null;
   }

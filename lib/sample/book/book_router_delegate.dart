@@ -9,6 +9,7 @@ import 'package:navigator_2_0/sample/colors/colors_page.dart';
 import 'package:navigator_2_0/sample/colors/colors_screen.dart';
 import 'package:navigator_2_0/sample/details/detail_screen.dart';
 import 'package:navigator_2_0/sample/details/details_page.dart';
+import 'package:navigator_2_0/sample/unknown_screen.dart';
 
 import 'book_details_page.dart';
 
@@ -73,64 +74,21 @@ class BookRouterDelegate extends RouterDelegate<BookRoutePath>
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
-      // pages: [
-      //   MaterialPage(
-      //     key: const ValueKey('BooksListPage'),
-      //     child: BooksListScreen(
-      //       books: books,
-      //       onTapped: _handleBookTapped,
-      //     ),
-      //   ),
-      //   if (isShow404) const MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen()),
-      //   if (_selectedBook != null && !isShow404) BookDetailsPage(book: _selectedBook!),
-      //   if (isDetailsPage && !isShow404) const DetailsPage(),
-      //   if (isDetailsPage && _selectedDetailsId != null) DetailsPage(id: _selectedDetailsId),
-      //   if (isColorsPage) const ColorsPage(),
-      // ],
-      onGenerateRoute: (RouteSettings settings) {
-        final uri = Uri.parse(settings.name ?? '');
-        log(uri.toString(), name: 'settings');
-        late Widget page;
-        if (uri.pathSegments.isEmpty) {
-          page = BooksListScreen(
+      pages: [
+        MaterialPage(
+          key: const ValueKey('BooksListPage'),
+          child: BooksListScreen(
             books: books,
             onTapped: _handleBookTapped,
-          );
-        } else {
-          final firstPath = uri.pathSegments.first;
-          final maybeHaveIdInPath = uri.pathSegments.length >= 2;
-          if (firstPath == DetailsPage.routeName) {
-            if (maybeHaveIdInPath) {
-              final id = int.tryParse(uri.pathSegments.skip(1).first);
-              if (id != null) {
-                page = DetailScreen(id: id);
-              } else {
-                page = const DetailScreen();
-              }
-            } else {
-              page = const DetailScreen();
-            }
-          }
-
-          if (firstPath == BookDetailsPage.routeName) {
-            if (settings.arguments is Book) {
-              page = BookDetailsScreen(
-                book: settings.arguments as Book,
-              );
-            }
-          }
-
-          if (firstPath == ColorsPage.routeName) {
-            page = const ColorsScreen();
-          }
-        }
-
-        return MaterialPageRoute(
-          builder: (context) {
-            return page;
-          },
-        );
-      },
+          ),
+        ),
+        if (isShow404) const MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen()),
+        if (_selectedBook != null && !isShow404) BookDetailsPage(book: _selectedBook!),
+        if (isDetailsPage && !isShow404) const DetailsPage(),
+        if (isDetailsPage && _selectedDetailsId != null) DetailsPage(id: _selectedDetailsId),
+        if (isColorsPage) const ColorsPage(),
+      ],
+      // onGenerateRoute: _onGenerateRoute,
       onPopPage: (route, result) {
         if (!route.didPop(result)) {
           return false;
@@ -155,7 +113,7 @@ class BookRouterDelegate extends RouterDelegate<BookRoutePath>
       _selectedBook = null;
       _selectedDetailsId = null;
       isDetailsPage = false;
-      isShow404 = false;
+      isShow404 = true;
       isColorsPage = false;
       return;
     }
@@ -193,20 +151,73 @@ class BookRouterDelegate extends RouterDelegate<BookRoutePath>
 
     if (path.isColorsPage) {
       isColorsPage = true;
+      // if (navigatorKey.currentContext != null) {
+      //   Navigator.pushNamed(
+      //     navigatorKey.currentContext!,
+      //     ColorsPage.routeName,
+      //   );
+      // }
     }
 
     isShow404 = false;
   }
 
   void _handleBookTapped(Book book) {
-    // _selectedBook = book;
-    // notifyListeners();
-    if (navigatorKey.currentContext != null) {
-      Navigator.pushNamed(
-        navigatorKey.currentContext!,
-        '${BookDetailsPage.routeName}/${book.id}',
-        arguments: book,
+    _selectedBook = book;
+    notifyListeners();
+    // if (navigatorKey.currentContext != null) {
+    //   Navigator.pushNamed(
+    //     navigatorKey.currentContext!,
+    //     '${BookDetailsPage.routeName}/${book.id}',
+    //     arguments: book,
+    //   );
+    // }
+  }
+
+  Route? _onGenerateRoute(RouteSettings settings) {
+    final uri = Uri.parse(settings.name ?? '');
+    log(uri.toString(), name: 'settings');
+
+    late Widget page;
+
+    if (uri.pathSegments.isEmpty) {
+      page = BooksListScreen(
+        books: books,
+        onTapped: _handleBookTapped,
       );
+    } else {
+      final firstPath = uri.pathSegments.first;
+      final maybeHaveIdInPath = uri.pathSegments.length >= 2;
+      if (firstPath == DetailsPage.routeName) {
+        if (maybeHaveIdInPath) {
+          final id = int.tryParse(uri.pathSegments.skip(1).first);
+          if (id != null) {
+            page = DetailScreen(id: id);
+          } else {
+            page = const DetailScreen();
+          }
+        } else {
+          page = const DetailScreen();
+        }
+      }
+
+      if (firstPath == BookDetailsPage.routeName) {
+        if (settings.arguments is Book) {
+          page = BookDetailsScreen(
+            book: settings.arguments as Book,
+          );
+        }
+      }
+
+      if (firstPath == ColorsPage.routeName) {
+        page = const ColorsScreen();
+      }
     }
+
+    return MaterialPageRoute(
+      builder: (context) {
+        return page;
+      },
+    );
   }
 }
